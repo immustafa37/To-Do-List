@@ -30,3 +30,18 @@ function addTask(taskContent) {
     taskList.appendChild(task);
     saveTasksToLocalStorage();
 }
+
+// Save tasks to localStorage
+function saveTasksToLocalStorage() {
+    const tasks = [];
+    const taskItems = document.querySelectorAll('.task');
+    
+    taskItems.forEach(task => {
+        tasks.push({
+            content: task.querySelector('span').textContent,
+            completed: task.classList.contains('completed')
+        });
+    });
+
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
