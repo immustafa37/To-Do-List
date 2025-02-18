@@ -45,3 +45,28 @@ function saveTasksToLocalStorage() {
 
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
+
+// Load tasks from localStorage
+function loadTasksFromLocalStorage() {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    
+    tasks.forEach(task => {
+        addTask(task.content);
+        if (task.completed) {
+            const lastTask = taskList.lastElementChild;
+            lastTask.classList.add('completed');
+        }
+    });
+}
+
+// Event listener to add task
+addButton.addEventListener('click', function() {
+    const taskContent = taskInput.value.trim();
+    if (taskContent) {
+        addTask(taskContent);
+        taskInput.value = ''; // Clear the input
+    }
+});
+
+// Load tasks when the page loads
+loadTasksFromLocalStorage();
