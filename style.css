@@ -1,12 +1,7 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
+    color: black;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -20,7 +15,7 @@ body.dark-mode {
 }
 
 body.dark-mode h1 {
-    color: rgb(0, 0, 0);
+    color: white;
 }
 
 .container {
@@ -29,6 +24,10 @@ body.dark-mode h1 {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 350px;
+}
+
+body.dark-mode .container {
+    background-color: #444;
 }
 
 h1 {
@@ -81,6 +80,11 @@ li {
     margin-bottom: 10px;
     border-radius: 4px;
     transition: background-color 0.3s;
+}
+
+body.dark-mode li {
+    background-color: #555;
+    color: white;
 }
 
 li.completed {
