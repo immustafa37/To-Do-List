@@ -12,7 +12,9 @@ themeToggle.addEventListener('click', () => {
 });
 
 // Function to add a task
-function addTask(taskContent, priority, deadline) {
+function addTask(taskContent, priority, deadline, completed = false) {
+    if (!taskContent) return; // Prevent empty tasks
+
     // Create task element
     const task = document.createElement('li');
     task.classList.add('task');
@@ -21,12 +23,17 @@ function addTask(taskContent, priority, deadline) {
     
     // Task HTML structure
     task.innerHTML = `
-        <span>${taskContent}</span>
+        <span class="task-content">${taskContent}</span>
         <span class="priority">${priority}</span>
         <span class="deadline">${deadline}</span>
         <button class="deleteBtn">Delete</button>
     `;
-    
+
+    // Mark task as completed if it was stored as completed
+    if (completed) {
+        task.classList.add('completed');
+    }
+
     // Event to mark task as complete
     task.addEventListener('click', function() {
         task.classList.toggle('completed');
@@ -34,8 +41,7 @@ function addTask(taskContent, priority, deadline) {
     });
 
     // Event to delete task
-    const deleteButton = task.querySelector('.deleteBtn');
-    deleteButton.addEventListener('click', function(e) {
+    task.querySelector('.deleteBtn').addEventListener('click', function(e) {
         e.stopPropagation();
         task.remove();
         saveTasksToLocalStorage();
@@ -44,16 +50,6 @@ function addTask(taskContent, priority, deadline) {
     // Drag and drop functionality
     task.addEventListener('dragstart', () => task.classList.add('dragging'));
     task.addEventListener('dragend', () => task.classList.remove('dragging'));
-    taskList.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const draggingTask = document.querySelector('.dragging');
-        const afterElement = getDragAfterElement(taskList, e.clientY);
-        if (afterElement == null) {
-            taskList.appendChild(draggingTask);
-        } else {
-            taskList.insertBefore(draggingTask, afterElement);
-        }
-    });
 
     taskList.appendChild(task);
     saveTasksToLocalStorage();
@@ -62,6 +58,7 @@ function addTask(taskContent, priority, deadline) {
 // Get the element closest to the pointer for drag-and-drop
 function getDragAfterElement(taskList, y) {
     const draggableElements = [...taskList.querySelectorAll('.task:not(.dragging)')];
+
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
@@ -77,10 +74,10 @@ function getDragAfterElement(taskList, y) {
 function saveTasksToLocalStorage() {
     const tasks = [];
     const taskItems = document.querySelectorAll('.task');
-    
+
     taskItems.forEach(task => {
         tasks.push({
-            content: task.querySelector('span').textContent,
+            content: task.querySelector('.task-content').textContent,
             completed: task.classList.contains('completed'),
             priority: task.getAttribute('data-priority'),
             deadline: task.querySelector('.deadline').textContent
@@ -93,13 +90,9 @@ function saveTasksToLocalStorage() {
 // Load tasks from localStorage
 function loadTasksFromLocalStorage() {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    
+
     tasks.forEach(task => {
-        addTask(task.content, task.priority, task.deadline);
-        if (task.completed) {
-            const lastTask = taskList.lastElementChild;
-            lastTask.classList.add('completed');
-        }
+        addTask(task.content, task.priority, task.deadline, task.completed);
     });
 }
 
@@ -109,11 +102,27 @@ addButton.addEventListener('click', function() {
     const priority = taskPriority.value;
     const deadline = taskDeadline.value;
 
-    if (taskContent) {
-        addTask(taskContent, priority, deadline);
-        taskInput.value = ''; // Clear the input
-        taskDeadline.value = ''; // Clear the deadline
+    if (!taskContent) {
+        alert("Please enter a task!");
+        return;
     }
+
+    addTask(taskContent, priority, deadline);
+    taskInput.value = ''; // Clear the input
+    taskDeadline.value = ''; // Clear the deadline
+});
+
+// Drag and drop event for sorting tasks
+taskList.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const draggingTask = document.querySelector('.dragging');
+    const afterElement = getDragAfterElement(taskList, e.clientY);
+    if (afterElement == null) {
+        taskList.appendChild(draggingTask);
+    } else {
+        taskList.insertBefore(draggingTask, afterElement);
+    }
+    saveTasksToLocalStorage(); // Save new order
 });
 
 // Load tasks when the page loads
